@@ -28,6 +28,7 @@ Simple example that connects to the first Crazyflie found, ramps up/down
 the motors and disconnects.
 """
 import logging
+import sys
 import time
 from threading import Thread
 import json
@@ -44,7 +45,7 @@ class ConsoleExample:
     """Example that connects to a Crazyflie and ramps the motors up/down and
     the disconnects"""
 
-    def __init__(self, link_uri):
+    def __init__(self, link_uri, log_name):
         """ Initialize and run the example with the specified link_uri """
 
         self._cf = Crazyflie(rw_cache='./cache')
@@ -54,12 +55,13 @@ class ConsoleExample:
         self._cf.connection_failed.add_callback(self._connection_failed)
         self._cf.connection_lost.add_callback(self._connection_lost)
         self._cf.console.receivedChar.add_callback(self._console_incoming)
+        self._log_name = log_name
 
         self._cf.open_link(link_uri)
         self.forward_dis = 0
 
         print('Connecting to %s' % link_uri)
-        self.fd = open("./data/test" + str(self.forward_dis) + ".log", "w+",encoding='utf-8')
+        self.fd = open("./data/test_" + self._log_name + ".log", "w+",encoding='utf-8')
 
 
     def _console_incoming(self, console_text):
@@ -102,10 +104,10 @@ class ConsoleExample:
         self._cf.close_link()
 
 
-uri = 'radio://0/20/2M/E7E7E7E7E7'
-
 if __name__ == '__main__':
+    print(sys.argv)
+    uri = 'radio://0/' + sys.argv[1] + '/2M/E7E7E7E7E7'
+    logname = sys.argv[2]
     # Initialize the low-level drivers (don't list the debug drivers)
     cflib.crtp.init_drivers(enable_debug_driver=False)
-    le = ConsoleExample(uri) 
-    
+    le = ConsoleExample(uri, logname)
