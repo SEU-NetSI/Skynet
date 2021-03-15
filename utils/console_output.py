@@ -59,13 +59,15 @@ class ConsoleExample:
         self.forward_dis = 0
 
         print('Connecting to %s' % link_uri)
+        self.fd = open("./data/test" + str(self.forward_dis) + ".log", "w+",encoding='utf-8')
+
 
     def _console_incoming(self, console_text):
-        # print(console_text, end='')
-        with open("./data/test" + str(self.forward_dis) + ".log","a+") as file:
-            print(console_text)
-            file.write(console_text)
-        # file.close()
+        print(console_text, end='')
+        self.fd.write(console_text)
+        self.fd.flush()
+        # self.fd.close()
+   
 
     def _connected(self, link_uri):
         """ This callback is called form the Crazyflie API when a Crazyflie
