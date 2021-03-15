@@ -49,7 +49,7 @@ URI = 'radio://0/29/2M'
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
 
-packgelost_data = [0, 0, 0]
+packgelost_data = [0, 0, 0, 0, 0]
 
 
 def packagelost_pos_callback(timestamp, data, logconf):
@@ -58,10 +58,14 @@ def packagelost_pos_callback(timestamp, data, logconf):
     packgelost_data[0] = data['Packagelost.notolsr']
     packgelost_data[1] = data['Packagelost.recvcountgt']
     packgelost_data[2] = data['Packagelost.recvcount']
+    packgelost_data[3] = data['stateEstimate.z']
+    packgelost_data[4] = time.time() - start_time
 
-    fd.write("notolsr:" + str(packgelost_data[0]))
-    fd.write("recvcountgt:" + str(packgelost_data[1]))
-    fd.write("recvcount:" + str(packgelost_data[2]))
+    fd.write("fly_time:" + str(packgelost_data[4]) + ",")
+    fd.write("notolsr:" + str(packgelost_data[0]) + ",")
+    fd.write("recvcountgt:" + str(packgelost_data[1]) + ",")
+    fd.write("recvcount:" + str(packgelost_data[2]) + ",")
+    fd.write("z:" + str(packgelost_data[3]))
     fd.write("\r\n")
 
 
@@ -73,16 +77,19 @@ if __name__ == '__main__':
     # Initialize the low-level drivers (don't list the debug drivers)
     cflib.crtp.init_drivers(enable_debug_driver=False)
     with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
-        logconf = LogConfig(name='Stabilizer', period_in_ms=10)
+        logconf = LogConfig(name='Stabilizer', period_in_ms=25)
         logconf.add_variable('Packagelost.notolsr', 'int16_t')
         logconf.add_variable('Packagelost.recvcountgt', 'int16_t')
         logconf.add_variable('Packagelost.recvcount', 'int16_t')
+        logconf.add_variable('stateEstimate.z','float')
         scf.cf.log.add_config(logconf)
         logconf.data_received_cb.add_callback(packagelost_pos_callback)
         logconf.start()
+
+        start_time = time.time()
         # We take off when the commander is created
         with MotionCommander(scf, default_height=0.5) as mc:
-            time.sleep(10)
+            time.sleep(20)
             mc.stop()
             # We land when the MotionCommander goes out of scope
         logconf.stop()
