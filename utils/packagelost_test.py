@@ -35,6 +35,7 @@ The MotionCommander uses velocity setpoints.
 Change the URI variable to your Crazyflie configuration.
 """
 import logging
+import sys
 import time
 
 import cflib.crtp
@@ -42,13 +43,14 @@ from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.syncCrazyflie import SyncCrazyflie
 from cflib.positioning.motion_commander import MotionCommander
 from cflib.crazyflie.log import LogConfig
+
 URI = 'radio://0/29/2M'
 
 # Only output errors from the logging framework
 logging.basicConfig(level=logging.ERROR)
 
 packgelost_data = [0, 0, 0]
-fd = open("./log/packagelost.log","w+")
+
 
 def packagelost_pos_callback(timestamp, data, logconf):
     print(data)
@@ -62,10 +64,15 @@ def packagelost_pos_callback(timestamp, data, logconf):
     fd.write("recvcount:" + str(packgelost_data[2]))
     fd.write("\r\n")
 
+
 if __name__ == '__main__':
+    uri = 'radio://0/' + sys.argv[1] + '/2M'
+    logname = sys.argv[2]
+
+    fd = open("./log/" + logname + ".log", "w+")
     # Initialize the low-level drivers (don't list the debug drivers)
     cflib.crtp.init_drivers(enable_debug_driver=False)
-    with SyncCrazyflie(URI, cf=Crazyflie(rw_cache='./cache')) as scf:
+    with SyncCrazyflie(uri, cf=Crazyflie(rw_cache='./cache')) as scf:
         logconf = LogConfig(name='Stabilizer', period_in_ms=10)
         logconf.add_variable('Packagelost.notolsr', 'int16_t')
         logconf.add_variable('Packagelost.recvcountgt', 'int16_t')
@@ -74,7 +81,7 @@ if __name__ == '__main__':
         logconf.data_received_cb.add_callback(packagelost_pos_callback)
         logconf.start()
         # We take off when the commander is created
-        with MotionCommander(scf,default_height=0.5) as mc:
+        with MotionCommander(scf, default_height=0.5) as mc:
             time.sleep(10)
             mc.stop()
             # We land when the MotionCommander goes out of scope
