@@ -55,7 +55,7 @@ if __name__ == '__main__':
         logconf.add_variable('Packagelost.notolsr', 'int16_t')
         logconf.add_variable('Packagelost.recvcountgt', 'int16_t')
         logconf.add_variable('Packagelost.recvcount', 'int16_t')
-        logconf.add_variable('stateEstimate.z','float')
+        logconf.add_variable('stateEstimate.z', 'float')
         scf.cf.log.add_config(logconf)
         logconf.data_received_cb.add_callback(packagelost_pos_callback)
         logconf.start()
@@ -66,5 +66,5 @@ if __name__ == '__main__':
             time.sleep(20)
             mc.stop()
 
-        # Land when the MotionCommander goes out of scope
-        logconf.stop()
+    # Land when the MotionCommander goes out of scope
+    logconf.stop()
