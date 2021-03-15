@@ -22,25 +22,22 @@ from cflib.crazyflie.log import LogConfig
 URI = 'radio://0/29/2M'
 
 # Only output errors from the logging framework
-logging.basicConfig(level=logging.ERROR)
+logging.basicConfig(level=logging.INFO)
 
 packgelost_data = [0, 0, 0, 0, 0]
 
 
 def packagelost_pos_callback(timestamp, data, logconf):
-    print(data)
-    global packgelost_data
-    packgelost_data[0] = data['Packagelost.notolsr']
-    packgelost_data[1] = data['Packagelost.recvcountgt']
-    packgelost_data[2] = data['Packagelost.recvcount']
-    packgelost_data[3] = data['stateEstimate.z']
-    packgelost_data[4] = time.time() - start_time
+    log_param = [round(time.time() - start_time, 4), data['Packagelost.notolsr'], data['Packagelost.recvcountgt'], data['Packagelost.recvcount'],
+                 round(data['stateEstimate.z'], 4)]
 
-    fd.write("fly_time:" + str(packgelost_data[4]) + ",")
-    fd.write("notolsr:" + str(packgelost_data[0]) + ",")
-    fd.write("recvcountgt:" + str(packgelost_data[1]) + ",")
-    fd.write("recvcount:" + str(packgelost_data[2]) + ",")
-    fd.write("z:" + str(packgelost_data[3]))
+    logging.info(log_param)
+
+    fd.write("fly_time:" + str(log_param[0]) + ", ")
+    fd.write("notolsr:" + str(log_param[1]) + ", ")
+    fd.write("recvcountgt:" + str(log_param[2]) + ", ")
+    fd.write("recvcount:" + str(log_param[3]) + ", ")
+    fd.write("z-index:" + str(log_param[4]))
     fd.write("\r\n")
 
 
