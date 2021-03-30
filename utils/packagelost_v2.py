@@ -11,8 +11,8 @@ from cflib.positioning.motion_commander import MotionCommander
 import pandas as pd
 
 
-def log_flying(link_uri, log_cfg_name='Packagelost', log_var={}, log_save_path="./default.csv", period_in_ms=100,
-                keep_time_in_s=20):
+def log_flying(link_uri, log_cfg_name='ReceiveRate', log_var={}, log_save_path="./default.csv", period_in_ms=100,
+                keep_time_in_s=30):
     cflib.crtp.init_drivers(enable_debug_driver=False)
     log_data = pd.DataFrame(columns=log_var.keys())
 
@@ -54,9 +54,7 @@ if __name__ == '__main__':
     csv_path = "./csv/" + csv_name + ".csv"
 
     log_var = {
-        'notolsr':'int16_t',
-        'recvcountgt':'int16_t',
-        'recvcount':'int16_t'
+        'receiveRate':'float'
     }
 
     log_flying(link_uri=uri,log_var=log_var,log_save_path=csv_path)
