@@ -1,3 +1,4 @@
+import sys
 import time
 
 import cflib.crtp
@@ -17,3 +18,10 @@ def basic_flying(link_uri, flying_time_in_s=30, flying_height_in_m=0.5):
 
             time.sleep(10)
             mc.stop()
+
+
+if __name__ == '__main__':
+    # crazyflie channel
+    uri_id = sys.argv[1]
+
+    basic_flying(link_uri='radio://0/' + uri_id + '/2M')
